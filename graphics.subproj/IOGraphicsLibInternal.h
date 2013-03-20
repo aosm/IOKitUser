@@ -79,7 +79,9 @@ enum {
     // disables the install of a stretched version if the aspect is different
     kScaleInstallNoStretch      = 0x00000002,
     // install resolution untransformed
-    kScaleInstallNoResTransform = 0x00000004
+    kScaleInstallNoResTransform = 0x00000004,
+    // install resolution on mirror dependents of this display
+    kScaleInstallMirrorDeps     = 0x00000008
 };
 
 enum {
@@ -362,6 +364,8 @@ struct IOFBConnect
     UInt32                      defaultHeight;
     UInt32                      defaultImageWidth;
     UInt32                      defaultImageHeight;
+    uint32_t                    displayImageWidth;
+    uint32_t                    displayImageHeight;
     UInt64                      dualLinkCrossover;
     UInt32                      maxDisplayLinks;
     float                       nativeAspect;

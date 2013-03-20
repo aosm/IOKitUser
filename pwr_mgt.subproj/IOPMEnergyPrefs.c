@@ -27,6 +27,7 @@
 #include "IOSystemConfiguration.h"
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/pwr_mgt/IOPM.h>
+#include <IOKit/pwr_mgt/IOPMPrivate.h>
 #include <IOKit/ps/IOPowerSources.h>
 #include <IOKit/ps/IOPowerSourcesPrivate.h>
 #include <IOKit/IOCFSerialize.h>
@@ -78,7 +79,9 @@ PMSettingDescriptorStruct defaultSettings[] =
     {kIOPMPrioritizeNetworkReachabilityOverSleepKey, 0, 0},
     {kIOPMRestartOnKernelPanicKey,          kSecondsIn5Years, kSecondsIn5Years},
     {kIOPMDeepSleepEnabledKey,              0,      0},
-    {kIOPMDeepSleepDelayKey,                0,      0}
+    {kIOPMDeepSleepDelayKey,                0,      0},
+    {kIOPMAutoPowerOffEnabledKey,           0,      0},
+    {kIOPMAutoPowerOffDelayKey,             0,      0}
 };
 
 static const int kPMSettingsCount = sizeof(defaultSettings)/sizeof(PMSettingDescriptorStruct);
@@ -512,14 +515,12 @@ bool IOPMFeatureIsAvailableWithSupportedTable(
         goto exit;
     }
 
-    if (CFEqual(PMFeature, CFSTR(kIOPMRestartOnKernelPanicKey))) { 
 #if TARGET_OS_EMBEDDED
+    if (CFEqual(PMFeature, CFSTR(kIOPMRestartOnKernelPanicKey))) { 
         ret = false;
-#else
-        ret = true;
-#endif
         goto exit;
     }
+#endif
     
     // *********************************
     // Special case for PowerButtonSleep    
@@ -1046,6 +1047,12 @@ supportedNameForPMName( CFStringRef pm_name )
         || CFEqual(pm_name, CFSTR(kIOPMDeepSleepDelayKey)))
     {
         return CFSTR("DeepSleep");
+    }
+
+    if (CFEqual(pm_name, CFSTR(kIOPMAutoPowerOffEnabledKey))
+        || CFEqual(pm_name, CFSTR(kIOPMAutoPowerOffDelayKey)))
+    {
+        return CFSTR("AutoPowerOff");
     }
 
     return pm_name;
